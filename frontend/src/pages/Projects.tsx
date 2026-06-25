@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchProjects, type ProjectData } from "../api";
 
 export const Projects: React.FC = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,9 +50,10 @@ export const Projects: React.FC = () => {
       {!loading && !error && projects.length > 0 && (
         <div className="grid md:grid-cols-2 gap-8 pt-6">
           {projects.map((project) => (
-            <div
+            <button
               key={project._id}
-              className="p-6 rounded-xl bg-slate-900/40 border border-slate-900 hover:border-slate-800/80 hover:bg-slate-900/60 transition-all duration-300 flex flex-col justify-between"
+              onClick={() => navigate(`/projects/${project._id}`)}
+              className="p-6 rounded-xl bg-slate-900/40 border border-slate-900 hover:border-slate-800/80 hover:bg-slate-900/60 transition-all duration-300 flex flex-col justify-between text-left cursor-pointer"
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -74,12 +77,12 @@ export const Projects: React.FC = () => {
                     ))}
                   </div>
                 )}
-                <div className="flex items-center justify-between text-xs text-purple-400 hover:text-purple-300 cursor-pointer font-medium">
+                <div className="flex items-center justify-between text-xs text-purple-400 hover:text-purple-300 font-medium">
                   <span>View Full Architecture Study</span>
                   <span>→</span>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}

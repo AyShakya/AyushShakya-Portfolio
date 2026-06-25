@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchNotes, type NoteData } from "../api";
 
 export const Notes: React.FC = () => {
+  const navigate = useNavigate();
   const [notes, setNotes] = useState<NoteData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,12 +50,15 @@ export const Notes: React.FC = () => {
       {!loading && !error && notes.length > 0 && (
         <div className="space-y-6 pt-6 max-w-2xl">
           {notes.map((note) => (
-            <article
+            <button
               key={note._id}
-              className="p-6 rounded-xl bg-slate-900/30 border border-slate-900 hover:border-slate-800/80 transition-all duration-300 hover:bg-slate-900/50 cursor-pointer"
+              onClick={() => navigate(`/notes/${note._id}`)}
+              className="w-full p-6 rounded-xl bg-slate-900/30 border border-slate-900 hover:border-slate-800/80 transition-all duration-300 hover:bg-slate-900/50 text-left cursor-pointer"
             >
               <div className="flex items-center justify-between text-xs font-mono text-slate-500 mb-3">
-                <span>{note.category}</span>
+                <span className="px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                  {note.category}
+                </span>
                 <span>{note.readTime}</span>
               </div>
               <h3 className="text-lg font-bold text-white hover:text-purple-300 transition-colors">
@@ -62,7 +67,7 @@ export const Notes: React.FC = () => {
               <p className="text-sm text-slate-400 mt-2 leading-relaxed">
                 {note.snippet}
               </p>
-            </article>
+            </button>
           ))}
         </div>
       )}
