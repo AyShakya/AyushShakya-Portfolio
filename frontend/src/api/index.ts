@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export interface HealthStatus {
   status: string;
@@ -72,6 +72,14 @@ export const fetchProjects = async (): Promise<ProjectData[]> => {
   return response.json();
 };
 
+export const fetchProjectById = async (id: string): Promise<ProjectData> => {
+  const response = await fetch(`${API_BASE_URL}/projects/${id}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch project");
+  }
+  return response.json();
+};
+
 export const fetchExperiences = async (): Promise<ExperienceData[]> => {
   const response = await fetch(`${API_BASE_URL}/experiences`);
   if (!response.ok) {
@@ -92,6 +100,26 @@ export const fetchNotes = async (): Promise<NoteData[]> => {
   const response = await fetch(`${API_BASE_URL}/notes`);
   if (!response.ok) {
     throw new Error("Failed to fetch notes");
+  }
+  return response.json();
+};
+
+export const fetchNoteById = async (id: string): Promise<NoteData> => {
+  const response = await fetch(`${API_BASE_URL}/notes/${id}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch note");
+  }
+  return response.json();
+};
+
+export const submitContactMessage = async (data: { name: string; email: string; message: string }): Promise<{ status: string; message: string }> => {
+  const response = await fetch(`${API_BASE_URL}/contact`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to send message");
   }
   return response.json();
 };
