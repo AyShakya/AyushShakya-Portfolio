@@ -4,6 +4,7 @@ import projectRouter from "./projectRoutes.js";
 import experienceRouter from "./experienceRoutes.js";
 import journeyRouter from "./journeyRoutes.js";
 import noteRouter from "./noteRoutes.js";
+import contactRouter from "./contactRoutes.js";
 
 const apiRouter = Router();
 
@@ -12,5 +13,6 @@ apiRouter.use(projectRouter);
 apiRouter.use(experienceRouter);
 apiRouter.use(journeyRouter);
 apiRouter.use(noteRouter);
+apiRouter.use(contactRouter);
 
 export default apiRouter;
