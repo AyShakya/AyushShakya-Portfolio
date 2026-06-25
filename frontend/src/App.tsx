@@ -14,6 +14,7 @@ import { Principles } from "./pages/Principles";
 import { About } from "./pages/About";
 import { Resume } from "./pages/Resume";
 import { Contact } from "./pages/Contact";
+import { Admin } from "./pages/Admin";
 import { NotFound } from "./pages/NotFound";
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/resume" element={<Resume />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
