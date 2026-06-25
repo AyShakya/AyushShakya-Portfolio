@@ -5,15 +5,16 @@ import {
   updateJourney,
   deleteJourney,
 } from "../controllers/journeyController.js";
+import { requireAdmin } from "../middlewares/auth.js";
 
 const router = Router();
 
 router.route("/journey")
   .get(getAllJourneys)
-  .post(createJourney);
+  .post(requireAdmin, createJourney);
 
 router.route("/journey/:id")
-  .put(updateJourney)
-  .delete(deleteJourney);
+  .put(requireAdmin, updateJourney)
+  .delete(requireAdmin, deleteJourney);
 
 export default router;

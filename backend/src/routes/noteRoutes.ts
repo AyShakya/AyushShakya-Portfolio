@@ -6,16 +6,17 @@ import {
   updateNote,
   deleteNote,
 } from "../controllers/noteController.js";
+import { requireAdmin } from "../middlewares/auth.js";
 
 const router = Router();
 
 router.route("/notes")
   .get(getAllNotes)
-  .post(createNote);
+  .post(requireAdmin, createNote);
 
 router.route("/notes/:id")
   .get(getNoteById)
-  .put(updateNote)
-  .delete(deleteNote);
+  .put(requireAdmin, updateNote)
+  .delete(requireAdmin, deleteNote);
 
 export default router;

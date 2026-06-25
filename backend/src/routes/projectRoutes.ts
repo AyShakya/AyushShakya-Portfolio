@@ -6,16 +6,17 @@ import {
   updateProject,
   deleteProject,
 } from "../controllers/projectController.js";
+import { requireAdmin } from "../middlewares/auth.js";
 
 const router = Router();
 
 router.route("/projects")
   .get(getAllProjects)
-  .post(createProject);
+  .post(requireAdmin, createProject);
 
 router.route("/projects/:id")
   .get(getProjectById)
-  .put(updateProject)
-  .delete(deleteProject);
+  .put(requireAdmin, updateProject)
+  .delete(requireAdmin, deleteProject);
 
 export default router;

@@ -5,15 +5,16 @@ import {
   updateExperience,
   deleteExperience,
 } from "../controllers/experienceController.js";
+import { requireAdmin } from "../middlewares/auth.js";
 
 const router = Router();
 
 router.route("/experiences")
   .get(getAllExperiences)
-  .post(createExperience);
+  .post(requireAdmin, createExperience);
 
 router.route("/experiences/:id")
-  .put(updateExperience)
-  .delete(deleteExperience);
+  .put(requireAdmin, updateExperience)
+  .delete(requireAdmin, deleteExperience);
 
 export default router;
