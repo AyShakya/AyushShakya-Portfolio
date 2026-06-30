@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllProjects } from "../utils/markdown";
 import { getAllNotes } from "../utils/markdown";
+import { Hero } from "../components/hero/Hero";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -9,41 +10,9 @@ export const Home: React.FC = () => {
   const notes = getAllNotes().slice(0, 2); // Get recent notes
 
   return (
-    <div className="space-y-16 py-4 animate-fade-in">
-      {/* Hero Section */}
-      <section className="space-y-8 py-8 md:py-12">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-          </span>
-          <span>Open to Full-Time Backend Roles</span>
-        </div>
-
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            Ayush Shakya
-          </h1>
-          <p className="text-lg md:text-2xl text-slate-400 font-light leading-relaxed max-w-2xl">
-            Designing backend architectures, AI systems, and high-performance developer tools.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-4 pt-2">
-          <button
-            onClick={() => navigate("/work")}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-medium rounded-lg shadow-lg shadow-purple-500/10 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer text-sm"
-          >
-            Explore Proof-of-Work
-          </button>
-          <button
-            onClick={() => navigate("/about")}
-            className="px-6 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-medium rounded-lg transition-all duration-200 hover:-translate-y-0.5 cursor-pointer text-sm"
-          >
-            Get in Touch
-          </button>
-        </div>
-      </section>
+    <div className="space-y-16 animate-fade-in w-full">
+      {/* Interactive Hero Engine Section */}
+      <Hero />
 
       {/* Core Specialties Section */}
       <section className="py-6 border-t border-slate-900">
