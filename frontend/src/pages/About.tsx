@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { getAboutContent } from "../utils/markdown";
 import { Container, Section, Divider, Spacer, Grid, Stack } from "../components/common/Container";
 import { Heading, Paragraph, SectionLabel } from "../components/common/Typography";
@@ -74,12 +74,14 @@ export const About: React.FC = () => {
     return { key: "", value: clean };
   };
 
+  const shouldReduceMotion = useReducedMotion();
+
   const revealVariants = {
-    hidden: { opacity: 0, y: 24 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 24 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any },
+      transition: { duration: shouldReduceMotion ? 0.05 : 0.8, ease: [0.16, 1, 0.3, 1] as any },
     },
   };
 

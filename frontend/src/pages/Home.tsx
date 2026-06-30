@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Hero } from "../components/hero/Hero";
 import { Container, Section, Stack, Spacer, Grid } from "../components/common/Container";
 import { Heading, Paragraph, SectionLabel } from "../components/common/Typography";
@@ -49,14 +49,16 @@ export const Home: React.FC = () => {
 
   const principlesList = parsePrinciples(principlesRaw.content);
 
+  const shouldReduceMotion = useReducedMotion();
+
   // Animation reveal settings matching motion system specifications
   const revealVariants = {
-    hidden: { opacity: 0, y: 32 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 32 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.8,
+        duration: shouldReduceMotion ? 0.05 : 0.8,
         ease: [0.16, 1, 0.3, 1] as any, // ease-strong-out
       },
     },

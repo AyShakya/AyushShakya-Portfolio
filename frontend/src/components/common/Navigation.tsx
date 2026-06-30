@@ -130,6 +130,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
         onClick={onClose}
         className="md:hidden list-none cursor-pointer p-2 select-none focus-ring-custom rounded-md hover:bg-bg-secondary/40"
         aria-label="Toggle navigation menu"
+        aria-expanded={isOpen}
       >
         <div className="space-y-1.5 flex flex-col items-center justify-center h-4 w-5">
           <span

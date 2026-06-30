@@ -267,7 +267,7 @@ hr {
 @utility focus-ring-custom {
   outline: none;
   &:focus-visible {
-    box-shadow: 0 0 0 2px var(--color-neutral-950), 0 0 0 4px var(--color-brand-primary);
+    box-shadow: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px var(--color-brand-primary);
   }
 }
 

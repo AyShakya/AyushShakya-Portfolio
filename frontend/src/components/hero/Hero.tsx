@@ -542,6 +542,8 @@ export const Hero: React.FC = () => {
                   card.element = el;
                 }}
                 tabIndex={0}
+                role="button"
+                aria-label={`Interactive token: ${cardData.label}. Use arrow keys to nudge, Escape to return.`}
                 onKeyDown={(e) => handleKeyDown(e, card.id)}
                 onBlur={() => handleBlur(card.id)}
                 onPointerDown={(e) => handlePointerDown(e, card.id)}

@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { MarkdownRenderer } from "../MarkdownRenderer";
 import { Container, Section, Divider, Spacer } from "../common/Container";
 import { Heading, Paragraph, SectionLabel } from "../common/Typography";
@@ -98,12 +98,14 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
     return "/livedesk.jpg";
   };
 
+  const shouldReduceMotion = useReducedMotion();
+
   const revealVariants = {
-    hidden: { opacity: 0, y: 32 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 32 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any },
+      transition: { duration: shouldReduceMotion ? 0.05 : 0.8, ease: [0.16, 1, 0.3, 1] as any },
     },
   };
 
