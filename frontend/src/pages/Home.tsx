@@ -8,8 +8,31 @@ import { FeaturedProjectCard, ProjectCard, ExperienceCard } from "../components/
 import { Button } from "../components/common/Button";
 import { getAllProjects, getAllExperiences, getPrinciplesContent } from "../utils/markdown";
 
+import { useSEO } from "../hooks/useSEO";
+
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+
+  useSEO({
+    title: "Ayush Shakya | Personal Headquarters",
+    description: "Software engineer specialized in backend systems, distributed architectures, and agentic AI pipelines.",
+    ogType: "profile",
+    schemaJson: {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "mainEntity": {
+        "@type": "Person",
+        "name": "Ayush Shakya",
+        "jobTitle": "Backend & Systems Engineer",
+        "url": "https://ayushshakya.com",
+        "image": "https://ayushshakya.com/portrait.jpg",
+        "sameAs": [
+          "https://github.com/AyShakya",
+          "https://linkedin.com/in/ayush-shakya"
+        ]
+      }
+    }
+  });
 
   // 1. Fetch data from markdown files using global utility functions
   const projects = getAllProjects();
