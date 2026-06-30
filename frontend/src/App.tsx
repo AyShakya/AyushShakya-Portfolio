@@ -10,10 +10,11 @@ import { NotFound } from "./pages/NotFound";
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col justify-between selection:bg-purple-500/30 selection:text-purple-200">
+      <div className="min-h-screen bg-bg-primary text-text-primary font-sans flex flex-col justify-between selection:bg-brand-primary/20 selection:text-text-primary transition-colors">
         <Header />
 
-        <main className="max-w-4xl mx-auto px-6 py-12 flex-grow w-full">
+        {/* Global main block: individual pages own their container layout widths */}
+        <main className="w-full flex-grow flex flex-col">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/work" element={<Work />} />

@@ -1,31 +1,297 @@
+/* Import Google Fonts eagerly */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 @import "tailwindcss";
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
+@theme {
+  /* Typography - Font Families */
+  --font-display: "Outfit", sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Typography - Custom Font Size Scales & Line Heights */
+  --text-display-xxl: 5.5rem;
+  --text-display-xxl--line-height: 1.05;
+  --text-display-xxl--letter-spacing: -0.03em;
+  --text-display-xxl--font-weight: 800;
+  
+  --text-display-xl: 3.75rem;
+  --text-display-xl--line-height: 1.1;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-xl--font-weight: 700;
+
+  --text-heading-lg: 2.25rem;
+  --text-heading-lg--line-height: 1.2;
+  --text-heading-lg--letter-spacing: -0.01em;
+  --text-heading-lg--font-weight: 600;
+
+  --text-heading-md: 1.75rem;
+  --text-heading-md--line-height: 1.25;
+  --text-heading-md--font-weight: 600;
+
+  --text-heading-sm: 1.25rem;
+  --text-heading-sm--line-height: 1.3;
+  --text-heading-sm--font-weight: 500;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.6;
+
+  --text-body-reg: 1rem;
+  --text-body-reg--line-height: 1.625;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.5;
+
+  --text-tiny: 0.75rem;
+  --text-tiny--line-height: 1.4;
+  --text-tiny--letter-spacing: 0.05em;
+
+  /* Color Tokens */
+  --color-bg-primary: #0b0b0b;
+  --color-bg-secondary: #121212;
+  --color-bg-elevated: #1e1e1e;
+
+  --color-brand-primary: #d7262e;
+  --color-brand-muted: #8a8a8a;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #8a8a8a;
+  --color-text-muted: #555555;
+  --color-text-inverse: #0b0b0b;
+
+  --color-border-subtle: #1f1f1f;
+  --color-border-strong: #2a2a2a;
+  
+  --color-overlay: rgba(0, 0, 0, 0.75);
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Spacing Tokens - Pure 8pt system */
+  --spacing-0: 0px;
+  --spacing-4: 0.25rem;     /* 4px */
+  --spacing-8: 0.5rem;      /* 8px */
+  --spacing-12: 0.75rem;    /* 12px */
+  --spacing-16: 1rem;       /* 16px */
+  --spacing-24: 1.5rem;     /* 24px */
+  --spacing-32: 2rem;       /* 32px */
+  --spacing-40: 2.5rem;     /* 40px */
+  --spacing-48: 3rem;       /* 48px */
+  --spacing-64: 4rem;       /* 64px */
+  --spacing-80: 5rem;       /* 80px */
+  --spacing-96: 6rem;       /* 96px */
+  --spacing-120: 7.5rem;    /* 120px */
+  --spacing-160: 10rem;     /* 160px */
+  --spacing-240: 15rem;     /* 240px */
+
+  /* Radius Tokens */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* Box Shadow Tokens */
+  --shadow-none: 0 0 #0000;
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+  --shadow-elevated: 0 10px 30px -10px rgba(0, 0, 0, 0.65);
+  --shadow-floating: 0 20px 40px -15px rgba(0, 0, 0, 0.85);
+
+  /* Easing Curves */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-strong-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-gentle-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-hero-spring: cubic-bezier(0.175, 0.885, 0.32, 1.1);
+
+  /* Transition Durations */
+  --animate-duration-instant: 0ms;
+  --animate-duration-fast: 180ms;
+  --animate-duration-normal: 400ms;
+  --animate-duration-slow: 800ms;
+  --animate-duration-very-slow: 4000ms;
+
+  /* Custom Keyframes & Animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  @keyframes image-reveal {
+    from {
+      opacity: 0;
+      transform: scale(1.04);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes floating-breath {
+    0% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-6px) rotate(0.5deg);
+    }
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Base DOM Element Styles */
+html {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Custom Text Selection Highlight */
+::selection {
+  background-color: rgba(215, 38, 46, 0.2);
+  color: #ffffff;
+}
+
+/* Font Overrides for Semantic Elements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+hr {
+  border-color: var(--color-border-subtle);
+  border-width: 1px;
+  opacity: 0.8;
+}
+
+/* Webkit Scrollbars Customization */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: var(--color-bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1e1b4b;
-  border-radius: 3px;
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #312e81;
+  background: var(--color-brand-primary);
+}
+
+/* Layout Utilities */
+@utility container-reading {
+  max-width: 768px; /* sm container: 700-800px reading width */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-24);
+  padding-right: var(--spacing-24);
+  width: 100%;
+}
+
+@utility container-section {
+  max-width: 1152px; /* md container: 1100-1200px section content */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-24);
+  padding-right: var(--spacing-24);
+  width: 100%;
+}
+
+@utility container-wide {
+  max-width: 1440px; /* lg container: 1400-1600px hero and showcases */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-24);
+  padding-right: var(--spacing-24);
+  width: 100%;
+}
+
+@utility container-bleed {
+  max-width: 100%;
+  padding-left: var(--spacing-24);
+  padding-right: var(--spacing-24);
+  width: 100%;
+}
+
+@utility max-w-reading {
+  max-width: 65ch; /* Maximum line length for optimal readability (60-75 characters) */
+}
+
+/* Interaction Utilities */
+@utility hover-lift {
+  transition: transform var(--animate-duration-normal) var(--ease-strong-out), box-shadow var(--animate-duration-normal) var(--ease-strong-out);
+  &:hover {
+    transform: translateY(-4px) scale(1.015);
+    box-shadow: var(--shadow-elevated);
+  }
+  &:active {
+    transform: translateY(-1px) scale(0.985);
+  }
+}
+
+@utility hover-press {
+  transition: transform var(--animate-duration-fast) var(--ease-standard);
+  &:hover {
+    transform: scale(1.015);
+  }
+  &:active {
+    transform: scale(0.985);
+  }
+}
+
+@utility focus-ring-custom {
+  outline: none;
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-neutral-950), 0 0 0 4px var(--color-brand-primary);
+  }
+}
+
+@utility border-subtle-thin {
+  border: 1px solid var(--color-border-subtle);
+}
+
+@utility border-strong-thin {
+  border: 1px solid var(--color-border-strong);
+}
+
+/* Animation Utilities */
+@utility animate-fade-in-up {
+  animation: fade-in var(--animate-duration-slow) var(--ease-strong-out) forwards;
+}
+
+@utility animate-reveal {
+  animation: image-reveal var(--animate-duration-slow) var(--ease-strong-out) forwards;
+}
+
+@utility animate-float-breath {
+  animation: floating-breath 6s var(--ease-gentle-in-out) infinite;
+}
+
+@utility transition-subtle {
+  transition: all var(--animate-duration-normal) var(--ease-standard);
 }
