@@ -1,25 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getAllProjects, getProjectById } from "../utils/markdown";
+import { getAllProjects, getProjectById, getAllExperiences, getAllCertificates } from "../utils/markdown";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
-
-interface ExperienceItem {
-  role: string;
-  organization: string;
-  duration: string;
-  responsibilities: string[];
-  achievements: string[];
-  techUsed: string[];
-  proofLinks?: { label: string; url: string }[];
-}
-
-interface CertificateItem {
-  title: string;
-  issuer: string;
-  date: string;
-  credentialUrl?: string;
-  skills: string[];
-}
 
 export const Work: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,63 +9,8 @@ export const Work: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"all" | "projects" | "experience" | "certificates">("all");
 
   const projects = getAllProjects();
-
-  const experiences: ExperienceItem[] = [
-    {
-      role: "Full Stack Developer (Freelance)",
-      organization: "Independent Consultant / Self-Employed",
-      duration: "Jun 2024 - Present",
-      responsibilities: [
-        "Architected scalable backend web applications for client integrations.",
-        "Built responsive interfaces with optimized performance using React and Tailwind."
-      ],
-      achievements: [
-        "Delivered 5+ web applications on time with 100% satisfaction score.",
-        "Decreased average database query latency by 35% through indexing optimizations."
-      ],
-      techUsed: ["React", "Express", "Node.js", "MongoDB", "Tailwind CSS"],
-      proofLinks: [{ label: "Freelance Review", url: "https://example.com" }]
-    },
-    {
-      role: "Technical Lead & Event Coordinator",
-      organization: "University Computer Science Club",
-      duration: "Sep 2023 - May 2024",
-      responsibilities: [
-        "Coordinated technical events, hackathons, and algorithm study groups.",
-        "Mentored junior developers in web development stack fundamentals."
-      ],
-      achievements: [
-        "Successfully organized club hackathon with over 150 active participants.",
-        "Guided a team of 4 members in building the club's event registration system."
-      ],
-      techUsed: ["Git", "React", "NodeJS", "JavaScript"],
-      proofLinks: [{ label: "CS Club Event Link", url: "https://example.com" }]
-    }
-  ];
-
-  const certificates: CertificateItem[] = [
-    {
-      title: "AWS Certified Cloud Practitioner",
-      issuer: "Amazon Web Services (AWS)",
-      date: "Dec 2025",
-      credentialUrl: "https://example.com",
-      skills: ["Cloud Architecture", "AWS Services", "IAM", "VPC"]
-    },
-    {
-      title: "Advanced Software Engineering Certificate",
-      issuer: "HackerRank",
-      date: "Aug 2024",
-      credentialUrl: "https://example.com",
-      skills: ["Problem Solving", "Data Structures", "Algorithms", "System Design"]
-    },
-    {
-      title: "Backend Development Professional",
-      issuer: "Meta / Coursera",
-      date: "May 2024",
-      credentialUrl: "https://example.com",
-      skills: ["APIs", "Django", "SQL", "Git"]
-    }
-  ];
+  const experiences = getAllExperiences();
+  const certificates = getAllCertificates();
 
   // Sync tab filtering if deep-linked project is closed
   useEffect(() => {
@@ -276,26 +203,21 @@ export const Work: React.FC = () => {
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <div>
-                      <h3 className="text-lg font-bold text-white">{exp.role}</h3>
-                      <p className="text-xs font-mono text-purple-400 mt-0.5">{exp.organization}</p>
+                      <h3 className="text-lg font-bold text-white">{exp.metadata.role}</h3>
+                      <p className="text-xs font-mono text-purple-400 mt-0.5">{exp.metadata.organization}</p>
                     </div>
                     <span className="text-[10px] text-slate-500 font-mono bg-slate-950 px-2 py-1 rounded border border-slate-900 self-start md:self-center">
-                      {exp.duration}
+                      {exp.metadata.duration}
                     </span>
                   </div>
 
-                  <ul className="list-disc pl-5 text-sm text-slate-400 space-y-1.5">
-                    {exp.responsibilities.map((resp, rIdx) => (
-                      <li key={rIdx}>{resp}</li>
-                    ))}
-                    {exp.achievements.map((ach, aIdx) => (
-                      <li key={aIdx} className="text-slate-300 font-medium">{ach}</li>
-                    ))}
-                  </ul>
+                  <div className="text-sm text-slate-400">
+                    <MarkdownRenderer content={exp.content} />
+                  </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-900/60">
                     <div className="flex flex-wrap gap-1.5">
-                      {exp.techUsed.map((tech) => (
+                      {exp.metadata.techUsed.map((tech) => (
                         <span
                           key={tech}
                           className="text-[10px] font-mono text-slate-500 px-2 py-0.5 bg-slate-950 border border-slate-900 rounded"
@@ -305,17 +227,16 @@ export const Work: React.FC = () => {
                       ))}
                     </div>
 
-                    {exp.proofLinks && exp.proofLinks.map((link, lIdx) => (
+                    {exp.metadata.proofLinkUrl && (
                       <a
-                        key={lIdx}
-                        href={link.url}
+                        href={exp.metadata.proofLinkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-purple-400 hover:underline font-mono"
                       >
-                        {link.label}
+                        {exp.metadata.proofLinkLabel || "Verify ↗"}
                       </a>
-                    ))}
+                    )}
                   </div>
                 </div>
               ))}
@@ -341,24 +262,27 @@ export const Work: React.FC = () => {
                 >
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
-                      <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">{cert.issuer}</span>
-                      <span className="text-[10px] text-slate-500 font-mono">{cert.date}</span>
+                      <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">{cert.metadata.issuer}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">{cert.metadata.date}</span>
                     </div>
-                    <h3 className="text-base font-bold text-white">{cert.title}</h3>
+                    <h3 className="text-base font-bold text-white">{cert.metadata.title}</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed font-light mt-1">
+                      {cert.content.trim()}
+                    </p>
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-900 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap gap-1">
-                      {cert.skills.map((s) => (
+                      {cert.metadata.skills.map((s) => (
                         <span key={s} className="text-[9px] font-mono text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-900">
                           {s}
                         </span>
                       ))}
                     </div>
 
-                    {cert.credentialUrl && (
+                    {cert.metadata.credentialUrl && (
                       <a
-                        href={cert.credentialUrl}
+                        href={cert.metadata.credentialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[10px] text-purple-400 hover:underline font-mono"

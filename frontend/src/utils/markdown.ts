@@ -18,6 +18,23 @@ export interface NoteMetadata {
   featured?: boolean;
 }
 
+export interface ExperienceMetadata {
+  role: string;
+  organization: string;
+  duration: string;
+  techUsed: string[];
+  proofLinkLabel?: string;
+  proofLinkUrl?: string;
+}
+
+export interface CertificateMetadata {
+  title: string;
+  issuer: string;
+  date: string;
+  credentialUrl?: string;
+  skills: string[];
+}
+
 export interface ParseResult<T> {
   metadata: T;
   content: string;
@@ -113,4 +130,18 @@ export function getAllNotes(): ParseResult<NoteMetadata>[] {
 export function getNoteById(id: string): ParseResult<NoteMetadata> | null {
   const note = getAllNotes().find(n => n.metadata.id === id);
   return note || null;
+}
+
+// Get all experiences
+export function getAllExperiences(): ParseResult<ExperienceMetadata>[] {
+  return Object.entries(markdownFiles)
+    .filter(([path]) => path.includes('/experiences/'))
+    .map(([, module]) => parseMarkdown<ExperienceMetadata>(module.default));
+}
+
+// Get all certificates
+export function getAllCertificates(): ParseResult<CertificateMetadata>[] {
+  return Object.entries(markdownFiles)
+    .filter(([path]) => path.includes('/certificates/'))
+    .map(([, module]) => parseMarkdown<CertificateMetadata>(module.default));
 }
