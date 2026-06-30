@@ -1,21 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getAllProjects, getProjectById, getAllExperiences, getAllCertificates } from "../utils/markdown";
+import { motion } from "framer-motion";
+import {
+  getAllProjects,
+  getProjectById,
+  getAllExperiences,
+  getAllCertificates,
+} from "../utils/markdown";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import { Container, Section, Stack, Divider, Spacer } from "../components/common/Container";
+import { Heading, Paragraph, SectionLabel, Tag, Badge } from "../components/common/Typography";
+import { FeaturedProjectCard, ProjectCard, ExperienceCard, CertificateCard } from "../components/common/Card";
+import { MasonryGrid, GalleryItem } from "../components/common/Gallery";
+import { Button } from "../components/common/Button";
 
 export const Work: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeProjectId = searchParams.get("project");
-  const [activeTab, setActiveTab] = useState<"all" | "projects" | "experience" | "certificates">("all");
+  
+  // Dynamic state filters
+  const [selectedTag, setSelectedTag] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(6); // Default page size for high volume scale
 
   const projects = getAllProjects();
   const experiences = getAllExperiences();
   const certificates = getAllCertificates();
 
-  // Sync tab filtering if deep-linked project is closed
+  // Scroll to top when loading a detailed case study
   useEffect(() => {
     if (activeProjectId) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [activeProjectId]);
 
@@ -28,275 +43,435 @@ export const Work: React.FC = () => {
     setSearchParams(searchParams);
   };
 
-  // Render detail view if a project is active
+  // Compile list of tags dynamically from existing projects
+  const projectTags = ["All", ...Array.from(new Set(projects.map((p) => p.metadata.tag)))];
+
+  // Helper: Parses the first paragraph description from markdown body
+  const getProjectDescription = (content: string) => {
+    const lines = content.split("\n");
+    const descLine = lines.find((line) => {
+      const trimmed = line.trim();
+      return (
+        trimmed.length > 0 &&
+        !trimmed.startsWith("#") &&
+        !trimmed.startsWith("---") &&
+        !trimmed.startsWith("`") &&
+        !trimmed.startsWith("[")
+      );
+    });
+    return descLine ? descLine.trim() : "";
+  };
+
+  // Check if user is actively searching or filtering
+  const isFiltering = selectedTag !== "All" || searchQuery.trim() !== "";
+
+  // Filter & Search Execution
+  const filteredAndSearchedProjects = projects.filter((p) => {
+    const matchesTag = selectedTag === "All" || p.metadata.tag === selectedTag;
+    
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch = query === "" ||
+      p.metadata.name.toLowerCase().includes(query) ||
+      p.metadata.tag.toLowerCase().includes(query) ||
+      p.metadata.techStack.some((tech) => tech.toLowerCase().includes(query)) ||
+      getProjectDescription(p.content).toLowerCase().includes(query);
+
+    return matchesTag && matchesSearch;
+  });
+
+  // Spotlight is active ONLY when not filtering to keep search results uniform
+  const featured = isFiltering
+    ? null
+    : filteredAndSearchedProjects.find((p) => p.metadata.featured === true);
+
+  // Gallery items are whatever is left after spotlighting
+  const galleryItems = featured
+    ? filteredAndSearchedProjects.filter((p) => p.metadata.id !== featured.metadata.id)
+    : filteredAndSearchedProjects;
+
+  // Slice gallery list for pagination to avoid scroll lag with 100+ projects
+  const paginatedGalleryItems = galleryItems.slice(0, visibleCount);
+  const hasMore = galleryItems.length > visibleCount;
+
+  // Image mapping based on project ID
+  const getProjectImage = (id: string) => {
+    if (id === "watcher-agent") return "/watcher.jpg";
+    if (id === "catalyst") return "/catalyst.jpg";
+    return "/livedesk.jpg";
+  };
+
+  const revealVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any },
+    },
+  };
+
+  // --- DETAIL VIEW MODE ---
   if (activeProjectId) {
     const project = getProjectById(activeProjectId);
     if (project) {
+      const coverImage = getProjectImage(project.metadata.id);
       return (
-        <div className="space-y-10 py-6 animate-fade-in max-w-3xl mx-auto">
-          <button
-            onClick={handleCloseProject}
-            className="flex items-center space-x-2 text-sm text-slate-500 hover:text-purple-400 transition-colors font-mono cursor-pointer"
-          >
-            <span>←</span>
-            <span>Back to Work Overview</span>
-          </button>
-
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs text-purple-400 font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20">
-                {project.metadata.tag}
-              </span>
-              {project.metadata.metrics && (
-                <span className="text-xs text-slate-400 font-mono bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                  {project.metadata.metrics}
+        <Section spacing="sm" className="animate-fade-in-up">
+          <Container size="md">
+            {/* Back indicator link */}
+            <div className="mb-10">
+              <Button onClick={handleCloseProject} variant="text" size="sm" className="group">
+                <span className="inline-block transform group-hover:-translate-x-1.5 transition-transform duration-200 mr-2">
+                  ←
                 </span>
-              )}
+                [ BACK TO SELECTED WORK ]
+              </Button>
             </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
-              {project.metadata.name}
-            </h1>
-          </div>
 
-          <div className="flex flex-wrap gap-3">
-            {project.metadata.githubUrl && (
-              <a
-                href={project.metadata.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-slate-900 border border-slate-850 hover:border-slate-800 text-slate-300 rounded-lg text-xs font-mono transition-colors"
-              >
-                ⌨ GitHub
-              </a>
-            )}
-            {project.metadata.liveDemoUrl && (
-              <a
-                href={project.metadata.liveDemoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-purple-600/90 hover:bg-purple-600 text-white rounded-lg text-xs font-mono transition-colors"
-              >
-                ↗ Demo
-              </a>
-            )}
-          </div>
+            {/* Side-by-side Case Study Product Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              
+              {/* Left Column (Sticky Metabar on Large Screen) */}
+              <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6 select-text border border-border-subtle bg-bg-secondary/20 p-6 rounded-lg">
+                <div>
+                  <Badge variant="brand" className="mb-3">
+                    {project.metadata.tag}
+                  </Badge>
+                  <Heading level={1} variant="lg" className="mb-2">
+                    {project.metadata.name}
+                  </Heading>
+                  {project.metadata.metrics && (
+                    <Paragraph variant="sm" className="font-mono text-brand-primary font-semibold text-xs mt-1">
+                      {project.metadata.metrics}
+                    </Paragraph>
+                  )}
+                </div>
 
-          {project.metadata.techStack && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-900">
-              {project.metadata.techStack.map((tech) => (
-                <span
-                  key={tech}
-                  className="text-xs font-mono text-slate-500 px-2 py-0.5 bg-slate-950 border border-slate-900 rounded"
-                >
-                  {tech}
-                </span>
-              ))}
+                <Divider />
+
+                {/* Tech specifications */}
+                <div>
+                  <SectionLabel className="block mb-3">Specifications</SectionLabel>
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.metadata.techStack.map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-2 py-0.5 rounded bg-bg-primary border border-border-subtle text-[10px] font-mono text-text-secondary"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <Divider />
+
+                {/* Case study direct links */}
+                <div className="flex flex-col gap-3">
+                  {project.metadata.githubUrl && (
+                    <Button href={project.metadata.githubUrl} variant="secondary" size="sm" external>
+                      ⌨ View Repository
+                    </Button>
+                  )}
+                  {project.metadata.liveDemoUrl && (
+                    <Button href={project.metadata.liveDemoUrl} variant="primary" size="sm" external>
+                      ↗ Live Demonstration
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Case study content bodies */}
+              <div className="lg:col-span-8 space-y-8 select-text">
+                {/* Cinematic Header Image */}
+                <div className="w-full aspect-video rounded-lg overflow-hidden border border-border-strong bg-bg-secondary">
+                  <img
+                    src={coverImage}
+                    alt={`${project.metadata.name} system cover`}
+                    className="w-full h-full object-cover grayscale brightness-90 contrast-105"
+                  />
+                </div>
+
+                {/* Document Body wrapped inside reading-width limit */}
+                <div className="max-w-reading py-2 select-text prose prose-invert">
+                  <MarkdownRenderer content={project.content} />
+                </div>
+              </div>
+
             </div>
-          )}
-
-          <div className="pt-4 border-t border-slate-900">
-            <MarkdownRenderer content={project.content} />
-          </div>
-        </div>
+          </Container>
+        </Section>
       );
     }
   }
 
+  // --- OVERVIEW MODE ---
   return (
-    <div className="space-y-10 py-6 animate-fade-in">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-extrabold tracking-tight text-white">Work</h1>
-        <p className="text-slate-400 font-light">
-          Engineering case studies, commercial projects, timeline experience, and verified badges.
-        </p>
-      </div>
+    <div className="w-full flex flex-col items-center">
+      
+      {/* SECTION 1: WORK HEADER */}
+      <Section spacing="sm" className="border-b border-border-subtle bg-bg-primary">
+        <Container size="md">
+          <div className="space-y-4 py-6 max-w-xl">
+            <SectionLabel>Portfolio</SectionLabel>
+            <Heading level={1} variant="lg" className="text-display-xl tracking-tight">
+              Selected Work
+            </Heading>
+            <Paragraph variant="lg">
+              Curated collection of software compilation engines, systems agents, and distributed relays.
+            </Paragraph>
+          </div>
+        </Container>
+      </Section>
 
-      {/* Tabs / Filtering */}
-      <div className="flex flex-wrap border-b border-slate-900 gap-2 font-mono text-xs md:text-sm">
-        {(["all", "projects", "experience", "certificates"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2.5 -mb-px border-b-2 capitalize transition-all cursor-pointer ${
-              activeTab === tab
-                ? "border-purple-500 text-purple-400 font-semibold"
-                : "border-transparent text-slate-500 hover:text-slate-300"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-12">
-        {/* Projects Section */}
-        {(activeTab === "all" || activeTab === "projects") && (
-          <section className="space-y-6">
-            <div className="flex items-center space-x-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-              <h2 className="text-sm font-semibold tracking-wider text-slate-400 uppercase font-mono">
-                Case Studies & Codebases
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {projects.map((project) => (
-                <button
-                  key={project.metadata.id}
-                  onClick={() => handleProjectSelect(project.metadata.id)}
-                  className="p-6 rounded-xl bg-slate-900/10 border border-slate-900 hover:border-slate-800 hover:bg-slate-900/20 transition-all duration-300 text-left flex flex-col justify-between cursor-pointer"
+      {/* SECTION 1B: STICKY FILTER & SEARCH SUBHEADER */}
+      <div className="sticky top-[53px] md:top-[61px] w-full z-30 bg-bg-primary/95 backdrop-blur-md border-b border-border-subtle/50 py-3 transition-all duration-300">
+        <Container size="md" className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Tag filters list */}
+          {projectTags.length > 1 && (
+            <div className="flex flex-wrap gap-1.5 items-center">
+              {projectTags.map((tag) => (
+                <Tag
+                  key={tag}
+                  active={selectedTag === tag}
+                  onClick={() => {
+                    setSelectedTag(tag);
+                    setVisibleCount(6); // Reset page size limit
+                  }}
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-[10px] text-purple-400 font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20">
-                        {project.metadata.tag}
-                      </span>
-                      {project.metadata.metrics && (
-                        <span className="text-xs text-slate-500 font-mono">{project.metadata.metrics}</span>
-                      )}
-                    </div>
-                    <h3 className="text-xl font-bold text-white mt-4">{project.metadata.name}</h3>
-                    <p className="text-sm text-slate-400 mt-2 leading-relaxed line-clamp-3">
-                      {project.metadata.name === "WatcherAgent" && "An intelligent autonomous file watcher and builder agent designed to track modifications and run builds automatically."}
-                      {project.metadata.name === "Catalyst" && "A production-grade reactive builder engine and compilation optimizer built to streamline frontend build pipelines."}
-                      {project.metadata.name === "LiveDesk" && "Collaborative real-time remote infrastructure manager allowing full virtual desktop control from the browser."}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-900/80">
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {project.metadata.techStack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="text-[10px] font-mono text-slate-500 px-2 py-0.5 bg-slate-950 border border-slate-900 rounded"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-purple-400 font-medium">
-                      <span>View Engineering Details</span>
-                      <span>→</span>
-                    </div>
-                  </div>
-                </button>
+                  {tag}
+                </Tag>
               ))}
             </div>
-          </section>
-        )}
+          )}
 
-        {/* Experience Section */}
-        {(activeTab === "all" || activeTab === "experience") && (
-          <section className="space-y-6 pt-4">
-            <div className="flex items-center space-x-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-              <h2 className="text-sm font-semibold tracking-wider text-slate-400 uppercase font-mono">
-                Professional Timeline
-              </h2>
+          {/* Interactive Search input */}
+          <div className="relative flex items-center self-start sm:self-auto">
+            <span className="text-text-muted font-mono text-xs mr-2">[</span>
+            <input
+              type="text"
+              placeholder="SEARCH PROJECTS"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setVisibleCount(6); // Reset pagination on search inputs
+              }}
+              className="bg-transparent text-xs font-mono text-text-primary focus:text-brand-primary placeholder:text-text-muted outline-none w-36 sm:w-40 focus:w-48 sm:focus:w-56 transition-all duration-300 uppercase py-0.5"
+            />
+            <span className="text-text-muted font-mono text-xs">]</span>
+            
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-4 text-[10px] font-mono text-text-muted hover:text-brand-primary ml-2 select-none cursor-pointer"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </Container>
+      </div>
+
+      {/* SECTION 2: FEATURED PROJECT SPOTLIGHT */}
+      {featured && (
+        <Section spacing="md" className="border-b border-border-subtle transition-colors">
+          <Container size="md">
+            <div className="space-y-4 mb-10">
+              <SectionLabel>Spotlight</SectionLabel>
             </div>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-10%" }}
+              variants={revealVariants}
+            >
+              <FeaturedProjectCard
+                id={featured.metadata.id}
+                name={featured.metadata.name}
+                tag={featured.metadata.tag}
+                metrics={featured.metadata.metrics}
+                techStack={featured.metadata.techStack}
+                description={getProjectDescription(featured.content)}
+                imageUrl={getProjectImage(featured.metadata.id)}
+                onClick={() => handleProjectSelect(featured.metadata.id)}
+              />
+            </motion.div>
+          </Container>
+        </Section>
+      )}
 
-            <div className="space-y-6">
-              {experiences.map((exp, index) => (
-                <div
-                  key={index}
-                  className="p-6 rounded-xl bg-slate-900/10 border border-slate-900 hover:border-slate-850 transition-all duration-300 space-y-4"
+      {/* SECTION 3: MASONRY PROJECT GALLERY */}
+      {filteredAndSearchedProjects.length > 0 ? (
+        <Section spacing="md" className="border-b border-border-subtle bg-bg-secondary/5 transition-colors">
+          <Container size="md">
+            {/* Spotlight label overlay */}
+            {!featured && (
+              <div className="space-y-4 mb-12">
+                <SectionLabel>
+                  Results ({filteredAndSearchedProjects.length})
+                </SectionLabel>
+              </div>
+            )}
+            
+            <MasonryGrid columns={{ sm: 1, md: 2, lg: 2 }}>
+              {paginatedGalleryItems.map((project) => (
+                <GalleryItem key={project.metadata.id}>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-8%" }}
+                    variants={revealVariants}
+                  >
+                    <ProjectCard
+                      id={project.metadata.id}
+                      name={project.metadata.name}
+                      tag={project.metadata.tag}
+                      metrics={project.metadata.metrics}
+                      techStack={project.metadata.techStack}
+                      description={getProjectDescription(project.content)}
+                      imageUrl={getProjectImage(project.metadata.id)}
+                      onClick={() => handleProjectSelect(project.metadata.id)}
+                    />
+                  </motion.div>
+                </GalleryItem>
+              ))}
+            </MasonryGrid>
+
+            {/* Pagination Trigger: Load More for High Volume projects */}
+            {hasMore && (
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={revealVariants}
+                className="flex justify-center pt-12"
+              >
+                <Button
+                  onClick={() => setVisibleCount((prev) => prev + 6)}
+                  variant="secondary"
+                  size="md"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{exp.metadata.role}</h3>
-                      <p className="text-xs font-mono text-purple-400 mt-0.5">{exp.metadata.organization}</p>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono bg-slate-950 px-2 py-1 rounded border border-slate-900 self-start md:self-center">
-                      {exp.metadata.duration}
-                    </span>
-                  </div>
+                  Load More Projects (+{galleryItems.length - visibleCount})
+                </Button>
+              </motion.div>
+            )}
+          </Container>
+        </Section>
+      ) : (
+        /* Empty search results fallback */
+        <Section spacing="lg" className="border-b border-border-subtle">
+          <Container size="sm" className="text-center py-16 space-y-4">
+            <span className="text-3xl">📭</span>
+            <Heading level={3} variant="sm" className="text-text-secondary">
+              No matching compiler works or systems projects found
+            </Heading>
+            <Paragraph variant="sm" className="max-w-xs mx-auto">
+              Verify spelling or try clicking another filter tag to clear this state.
+            </Paragraph>
+            <Spacer size={8} />
+            <Button
+              onClick={() => {
+                setSelectedTag("All");
+                setSearchQuery("");
+              }}
+              variant="ghost"
+              size="sm"
+            >
+              Reset Filters
+            </Button>
+          </Container>
+        </Section>
+      )}
 
-                  <div className="text-sm text-slate-400">
-                    <MarkdownRenderer content={exp.content} />
-                  </div>
+      {/* SECTION 4: PROFESSIONAL TIMELINE (Hidden during searches) */}
+      {!isFiltering && experiences.length > 0 && (
+        <Section spacing="md" className="border-b border-border-subtle transition-colors">
+          <Container size="md">
+            {/* Left-right editorial layout */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
+              <div className="md:col-span-4 space-y-4 mb-6 md:mb-0">
+                <SectionLabel>Timeline</SectionLabel>
+                <Heading level={2} variant="lg">
+                  Professional Experience
+                </Heading>
+                <Paragraph variant="reg">
+                  Practical deployment records and systems support histories.
+                </Paragraph>
+              </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-900/60">
-                    <div className="flex flex-wrap gap-1.5">
-                      {exp.metadata.techUsed.map((tech) => (
-                        <span
-                          key={tech}
-                          className="text-[10px] font-mono text-slate-500 px-2 py-0.5 bg-slate-950 border border-slate-900 rounded"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
+              <div className="md:col-span-8">
+                <Stack gap={24}>
+                  {experiences.map((exp, idx) => {
+                    const bullets = exp.content
+                      .split("\n")
+                      .map((line) => line.trim().replace(/^-\s*/, ""))
+                      .filter(Boolean);
+                    const summaryText = bullets.join(" ");
 
-                    {exp.metadata.proofLinkUrl && (
-                      <a
-                        href={exp.metadata.proofLinkUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-purple-400 hover:underline font-mono"
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-10%" }}
+                        variants={revealVariants}
                       >
-                        {exp.metadata.proofLinkLabel || "Verify ↗"}
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
+                        <ExperienceCard
+                          role={exp.metadata.role}
+                          organization={exp.metadata.organization}
+                          duration={exp.metadata.duration}
+                          techUsed={exp.metadata.techUsed}
+                          proofLinkLabel={exp.metadata.proofLinkLabel}
+                          proofLinkUrl={exp.metadata.proofLinkUrl}
+                          description={summaryText}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </Stack>
+              </div>
             </div>
-          </section>
-        )}
+          </Container>
+        </Section>
+      )}
 
-        {/* Certificates Section */}
-        {(activeTab === "all" || activeTab === "certificates") && (
-          <section className="space-y-6 pt-4">
-            <div className="flex items-center space-x-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-              <h2 className="text-sm font-semibold tracking-wider text-slate-400 uppercase font-mono">
-                Verified Credentials
-              </h2>
+      {/* SECTION 5: VERIFIED CREDENTIALS (Hidden during searches) */}
+      {!isFiltering && certificates.length > 0 && (
+        <Section spacing="md" className="bg-bg-secondary/10 transition-colors">
+          <Container size="md">
+            <div className="space-y-4 mb-12">
+              <SectionLabel>Credentials</SectionLabel>
+              <Heading level={2} variant="lg">
+                Verified Certificates
+              </Heading>
+              <Paragraph variant="reg">
+                Professional accreditation credentials from cloud services and developer boards.
+              </Paragraph>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            {/* Responsive grid of compact certificates */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {certificates.map((cert, index) => (
-                <div
+                <motion.div
                   key={index}
-                  className="p-5 rounded-xl bg-slate-900/10 border border-slate-900 hover:border-slate-855 transition-all duration-300 flex flex-col justify-between"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-8%" }}
+                  variants={revealVariants}
                 >
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
-                      <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">{cert.metadata.issuer}</span>
-                      <span className="text-[10px] text-slate-500 font-mono">{cert.metadata.date}</span>
-                    </div>
-                    <h3 className="text-base font-bold text-white">{cert.metadata.title}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed font-light mt-1">
-                      {cert.content.trim()}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-900 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap gap-1">
-                      {cert.metadata.skills.map((s) => (
-                        <span key={s} className="text-[9px] font-mono text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-900">
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-
-                    {cert.metadata.credentialUrl && (
-                      <a
-                        href={cert.metadata.credentialUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] text-purple-400 hover:underline font-mono"
-                      >
-                        Verify ↗
-                      </a>
-                    )}
-                  </div>
-                </div>
+                  <CertificateCard
+                    title={cert.metadata.title}
+                    issuer={cert.metadata.issuer}
+                    date={cert.metadata.date}
+                    credentialUrl={cert.metadata.credentialUrl}
+                    skills={cert.metadata.skills}
+                  />
+                </motion.div>
               ))}
             </div>
-          </section>
-        )}
-      </div>
+          </Container>
+        </Section>
+      )}
+
     </div>
   );
 };
