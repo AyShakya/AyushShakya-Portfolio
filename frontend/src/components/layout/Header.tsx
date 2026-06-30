@@ -13,12 +13,9 @@ export const Header: React.FC = () => {
 
   const tabs: NavTab[] = [
     { id: "home", label: "Home", path: "/" },
-    { id: "projects", label: "Projects", path: "/projects" },
-    { id: "experience", label: "Experience", path: "/experience" },
-    { id: "journey", label: "Journey", path: "/journey" },
-    { id: "notes", label: "Notes", path: "/notes" },
+    { id: "work", label: "Work", path: "/work" },
+    { id: "brain", label: "Brain", path: "/brain" },
     { id: "about", label: "About", path: "/about" },
-    { id: "contact", label: "Contact", path: "/contact" },
   ];
 
   const currentPath = location.pathname;
@@ -28,41 +25,43 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <header className="border-b border-slate-900/80 bg-slate-950/70 backdrop-blur-md sticky top-0 z-50">
+      <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
           className="flex items-center space-x-3 cursor-pointer"
         >
-          <div className="h-3 w-3 rounded-full bg-purple-500 animate-pulse" />
-          <span className="font-mono font-bold tracking-wider text-sm bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+          </span>
+          <span className="font-mono font-bold tracking-wider text-xs bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
             AYUSH.SHAKYA // HQ
           </span>
         </button>
 
-        {/* Mobile Hamburger */}
-        <details className="md:hidden">
-          <summary className="list-none cursor-pointer p-2">
+        {/* Mobile Nav Details Dropdown */}
+        <details className="md:hidden relative group">
+          <summary className="list-none cursor-pointer p-2 select-none">
             <div className="space-y-1">
-              <div className="h-0.5 w-5 bg-slate-400 rounded" />
-              <div className="h-0.5 w-5 bg-slate-400 rounded" />
-              <div className="h-0.5 w-5 bg-slate-400 rounded" />
+              <div className="h-0.5 w-5 bg-slate-400 rounded transition-transform group-open:rotate-45" />
+              <div className="h-0.5 w-5 bg-slate-400 rounded group-open:opacity-0" />
+              <div className="h-0.5 w-5 bg-slate-400 rounded group-open:-rotate-45" />
             </div>
           </summary>
-          <nav className="absolute top-full left-0 right-0 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex flex-col space-y-3">
+          <nav className="absolute right-0 top-full mt-2 w-48 bg-slate-950 border border-slate-900 rounded-lg p-2 shadow-2xl flex flex-col space-y-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => {
                   navigate(tab.path);
-                  // Close the details element
                   const details = document.querySelector("details");
                   if (details) details.open = false;
                 }}
-                className={`text-left transition-colors cursor-pointer text-sm font-medium ${
+                className={`text-left w-full px-3 py-2 rounded-md transition-colors text-xs font-mono font-medium cursor-pointer ${
                   isActive(tab.path)
-                    ? "text-purple-400 font-semibold"
-                    : "text-slate-400 hover:text-purple-300"
+                    ? "bg-purple-500/10 text-purple-400"
+                    : "text-slate-400 hover:bg-slate-900 hover:text-purple-300"
                 }`}
               >
                 {tab.label}
@@ -72,7 +71,7 @@ export const Header: React.FC = () => {
         </details>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex space-x-6 md:space-x-8 text-sm font-medium">
+        <nav className="hidden md:flex space-x-8 text-xs font-mono font-medium">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -88,9 +87,9 @@ export const Header: React.FC = () => {
           ))}
         </nav>
 
-        <div className="hidden sm:flex items-center space-x-3">
-          <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-slate-900 border border-slate-800 rounded">
-            v1.0.0-beta
+        <div className="hidden sm:flex items-center">
+          <span className="text-[10px] font-mono text-slate-500 px-2 py-0.5 bg-slate-900 border border-slate-850 rounded">
+            v2.0.0
           </span>
         </div>
       </div>

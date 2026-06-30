@@ -1,82 +1,79 @@
 import React from "react";
+import { getAboutContent } from "../utils/markdown";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 
 export const About: React.FC = () => {
+  const about = getAboutContent();
+  const meta = about.metadata;
+
   return (
-    <div className="space-y-10 py-6">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-extrabold tracking-tight text-white">About</h1>
-        <p className="text-slate-400 font-light">
-          Who I am, what drives me, and why I build.
-        </p>
+    <div className="space-y-10 py-6 animate-fade-in max-w-3xl mx-auto">
+      {/* Top Banner / Avatar & Summary */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-slate-900">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white">{meta.name || "Ayush Shakya"}</h1>
+          <p className="text-purple-400 font-mono text-xs md:text-sm">{meta.role || "Backend & Systems Engineer"}</p>
+        </div>
+
+        {meta.availability && (
+          <span className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-500/5 border border-emerald-500/10 text-emerald-400 text-xs font-mono">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{meta.availability}</span>
+          </span>
+        )}
       </div>
 
-      <section className="space-y-6">
-        <div className="p-6 rounded-xl bg-slate-900/30 border border-slate-900/80">
-          <h2 className="text-xl font-bold text-white mb-4">Who I Am</h2>
-          <p className="text-slate-300 leading-relaxed">
-            I'm a backend-focused full-stack engineer passionate about building systems that scale.
-            My approach combines deep technical understanding with pragmatic engineering — I don't
-            just write code that works, I understand why it works.
-          </p>
-        </div>
+      {/* Main Markdown Body */}
+      <div className="prose prose-invert max-w-none">
+        <MarkdownRenderer content={about.content} />
+      </div>
 
-        <div className="p-6 rounded-xl bg-slate-900/30 border border-slate-900/80">
-          <h2 className="text-xl font-bold text-white mb-4">What Drives Me</h2>
-          <p className="text-slate-300 leading-relaxed">
-            I believe in learning by building. Every project is an opportunity to push into
-            unknown territory, whether it's agentic AI architectures, low-latency WebSocket systems,
-            or compiler optimization pipelines. I'm driven by curiosity about how systems work
-            at every layer — from the kernel up to the UI.
-          </p>
-        </div>
+      {/* Interactive Contact Card */}
+      <section className="p-6 rounded-xl bg-gradient-to-r from-purple-950/10 to-indigo-950/10 border border-purple-500/10 space-y-4 mt-8">
+        <h2 className="text-lg font-bold text-white">Let's Connect</h2>
+        <p className="text-sm text-slate-400 leading-relaxed">
+          I am always open to discussing new backend projects, architecture refactoring, or software engineering positions. Drop me a line or review my verified profiles below.
+        </p>
 
-        <div className="p-6 rounded-xl bg-slate-900/30 border border-slate-900/80">
-          <h2 className="text-xl font-bold text-white mb-4">Why I Build</h2>
-          <p className="text-slate-300 leading-relaxed">
-            I build to solve real problems and to prove what's possible. Each project in my
-            portfolio represents not just a technical challenge overcome, but a lesson learned
-            and a capability earned. I value execution over consumption — reading about systems
-            is useful, but building them is transformative.
-          </p>
-        </div>
-
-        <div className="p-6 rounded-xl bg-slate-900/30 border border-slate-900/80">
-          <h2 className="text-xl font-bold text-white mb-4">Areas of Interest</h2>
-          <div className="flex flex-wrap gap-3">
-            {[
-              "Backend Systems",
-              "Agentic AI",
-              "Linux & OS Internals",
-              "Cybersecurity",
-              "Robotics & Drones",
-              "Distributed Systems",
-              "Systems Thinking",
-            ].map((area) => (
-              <span
-                key={area}
-                className="px-3 py-1.5 text-sm font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 rounded-lg"
-              >
-                {area}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-6 rounded-xl bg-slate-900/30 border border-slate-900/80">
-          <h2 className="text-xl font-bold text-white mb-4">Long-Term Goals</h2>
-          <ul className="space-y-3">
-            {[
-              "Architect production-grade distributed systems at scale",
-              "Contribute meaningfully to open-source infrastructure projects",
-              "Bridge the gap between AI research and production engineering",
-              "Build tools that empower other developers to ship better software",
-            ].map((goal, i) => (
-              <li key={i} className="flex items-start space-x-3 text-slate-300">
-                <span className="text-purple-400 mt-0.5">→</span>
-                <span>{goal}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="flex flex-wrap gap-3 pt-2">
+          {meta.email && (
+            <a
+              href={`mailto:${meta.email}`}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white rounded-lg text-xs font-mono transition-all duration-200"
+            >
+              ✉ Send Email
+            </a>
+          )}
+          {meta.github && (
+            <a
+              href={meta.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-850 text-slate-300 rounded-lg text-xs font-mono transition-all duration-200"
+            >
+              ⌨ GitHub
+            </a>
+          )}
+          {meta.linkedin && (
+            <a
+              href={meta.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-855 text-slate-300 rounded-lg text-xs font-mono transition-all duration-200"
+            >
+              💼 LinkedIn
+            </a>
+          )}
+          {meta.leetcode && (
+            <a
+              href={meta.leetcode}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-855 text-slate-300 rounded-lg text-xs font-mono transition-all duration-200"
+            >
+              🏆 LeetCode
+            </a>
+          )}
         </div>
       </section>
     </div>
