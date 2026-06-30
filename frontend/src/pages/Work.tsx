@@ -24,6 +24,7 @@ export const Work: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(6); // Default page size for high volume scale
+  const [savedScrollPos, setSavedScrollPos] = useState(0);
 
   const projects = getAllProjects();
   const experiences = getAllExperiences();
@@ -62,12 +63,19 @@ export const Work: React.FC = () => {
   }, [activeProjectId]);
 
   const handleProjectSelect = (id: string) => {
+    if (!activeProjectId) {
+      setSavedScrollPos(window.scrollY);
+    }
     setSearchParams({ project: id });
   };
 
   const handleCloseProject = () => {
     searchParams.delete("project");
     setSearchParams(searchParams);
+    // Restore scroll position
+    setTimeout(() => {
+      window.scrollTo({ top: savedScrollPos, behavior: "instant" as any });
+    }, 50);
   };
 
   // Compile list of tags dynamically from existing projects

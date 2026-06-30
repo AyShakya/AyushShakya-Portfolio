@@ -18,6 +18,7 @@ export const Brain: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [visibleCount, setVisibleCount] = useState(6); // Paginate to avoid endless scrolling
+  const [savedScrollPos, setSavedScrollPos] = useState(0);
 
   const notes = getAllNotes();
 
@@ -57,12 +58,19 @@ export const Brain: React.FC = () => {
   }, [activeNoteId]);
 
   const handleNoteSelect = (id: string) => {
+    if (!activeNoteId) {
+      setSavedScrollPos(window.scrollY);
+    }
     setSearchParams({ note: id });
   };
 
   const handleCloseNote = () => {
     searchParams.delete("note");
     setSearchParams(searchParams);
+    // Restore scroll position
+    setTimeout(() => {
+      window.scrollTo({ top: savedScrollPos, behavior: "instant" as any });
+    }, 50);
   };
 
   // Compile list of categories dynamically from notes metadata
