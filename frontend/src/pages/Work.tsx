@@ -14,6 +14,8 @@ import { MasonryGrid, GalleryItem } from "../components/common/Gallery";
 import { Button } from "../components/common/Button";
 import { ProjectDetail } from "../components/project/ProjectDetail";
 
+import { useSEO } from "../hooks/useSEO";
+
 export const Work: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeProjectId = searchParams.get("project");
@@ -26,6 +28,31 @@ export const Work: React.FC = () => {
   const projects = getAllProjects();
   const experiences = getAllExperiences();
   const certificates = getAllCertificates();
+
+  const activeProject = activeProjectId ? projects.find((p) => p.metadata.id === activeProjectId) : null;
+
+  useSEO({
+    title: activeProject 
+      ? `${activeProject.metadata.name} | Case Study` 
+      : "Selected Projects & Systems Engineering",
+    description: activeProject 
+      ? `${activeProject.metadata.tag} case study. ${activeProject.metadata.metrics || ""}`
+      : "Curated collection of software compiler pipelines, systems automation, and distributed relays built by Ayush Shakya.",
+    schemaJson: activeProject 
+      ? {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": activeProject.metadata.name,
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "Linux/Unix/Windows"
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Selected Work | Ayush Shakya",
+          "description": "Curated collection of developer systems and compilation engines."
+        }
+  });
 
   // Scroll to top when loading a detailed case study
   useEffect(() => {

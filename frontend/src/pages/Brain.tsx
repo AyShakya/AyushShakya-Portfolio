@@ -8,6 +8,8 @@ import { Heading, Paragraph, SectionLabel, Tag, Badge } from "../components/comm
 import { Button } from "../components/common/Button";
 import { Card } from "../components/common/Card";
 
+import { useSEO } from "../hooks/useSEO";
+
 export const Brain: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeNoteId = searchParams.get("note");
@@ -18,6 +20,34 @@ export const Brain: React.FC = () => {
   const [visibleCount, setVisibleCount] = useState(6); // Paginate to avoid endless scrolling
 
   const notes = getAllNotes();
+
+  const activeNote = activeNoteId ? notes.find((n) => n.metadata.id === activeNoteId) : null;
+
+  useSEO({
+    title: activeNote 
+      ? `${activeNote.metadata.title} | Developer Log` 
+      : "The Brain | Developer Insights & Systems Notes",
+    description: activeNote 
+      ? activeNote.metadata.snippet 
+      : "Explore developer logs, compiler optimization notes, Redis queue implementations, and container namespaces written by Ayush Shakya.",
+    schemaJson: activeNote 
+      ? {
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          "headline": activeNote.metadata.title,
+          "description": activeNote.metadata.snippet,
+          "author": {
+            "@type": "Person",
+            "name": "Ayush Shakya"
+          }
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          "name": "The Brain | Ayush Shakya",
+          "description": "Developer logs, architectural notes, and systems research."
+        }
+  });
 
   // Scroll to top when opening a note details sheet
   useEffect(() => {

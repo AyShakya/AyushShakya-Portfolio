@@ -5,6 +5,7 @@ import { Container, Section, Divider, Spacer, Grid, Stack } from "../components/
 import { Heading, Paragraph, SectionLabel } from "../components/common/Typography";
 import { Button } from "../components/common/Button";
 import { Card } from "../components/common/Card";
+import { useSEO } from "../hooks/useSEO";
 
 interface AboutSections {
   intro: string;
@@ -17,6 +18,18 @@ interface AboutSections {
 export const About: React.FC = () => {
   const about = getAboutContent();
   const meta = about.metadata;
+
+  useSEO({
+    title: "About Ayush Shakya | Backend & Systems Engineer",
+    description: "Who is Ayush Shakya? Explore his systems engineering background, technical playgrounds, core work mindset, and long-term developer goals.",
+    ogType: "profile",
+    schemaJson: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About Ayush Shakya",
+      "description": "Personal background, core work principles, and long-term goals of Ayush Shakya."
+    }
+  });
 
   // Dynamic parser: Slices about.md into clean arrays
   const parseAboutContent = (content: string): AboutSections => {
