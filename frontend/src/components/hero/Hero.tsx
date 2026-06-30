@@ -457,7 +457,7 @@ export const Hero: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[90vh] md:h-[95vh] lg:h-screen overflow-hidden flex items-center bg-bg-primary select-none border-b border-border-subtle"
+      className="relative w-full min-h-[90vh] md:h-[95vh] lg:h-screen py-12 md:py-0 overflow-hidden flex items-center bg-bg-primary select-none border-b border-border-subtle"
     >
       {/* 1. Grid Background Layer */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:5rem_5rem] md:bg-[size:6rem_6rem] pointer-events-none" />
@@ -483,7 +483,7 @@ export const Hero: React.FC = () => {
                 <span>HQ // Bangalore // Open to roles</span>
               </div>
 
-              <Heading level={1} variant="lg" className="text-display-xxl leading-[1.0] tracking-tight font-extrabold select-text">
+              <Heading level={1} variant="lg" className="text-5xl sm:text-6xl md:text-7xl lg:text-display-xxl leading-[1.0] tracking-tight font-extrabold select-text">
                 Ayush Shakya
               </Heading>
 

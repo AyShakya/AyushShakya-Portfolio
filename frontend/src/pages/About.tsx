@@ -116,7 +116,7 @@ export const About: React.FC = () => {
         <Container size="md">
           <div className="py-8 max-w-3xl space-y-4">
             <SectionLabel>Philosophy</SectionLabel>
-            <Heading level={1} variant="lg" className="text-display-lg font-extrabold tracking-tight leading-tight text-white select-text">
+            <Heading level={1} variant="lg" className="text-3xl sm:text-4xl md:text-5xl lg:text-display-xl font-extrabold tracking-tight leading-tight text-white select-text">
               "Building is the highest form of understanding."
             </Heading>
             <Paragraph variant="lg" className="text-text-secondary font-light select-text">

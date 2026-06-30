@@ -143,7 +143,7 @@ export const Work: React.FC = () => {
         <Container size="md">
           <div className="space-y-4 py-6 max-w-xl">
             <SectionLabel>Portfolio</SectionLabel>
-            <Heading level={1} variant="lg" className="text-display-xl tracking-tight">
+            <Heading level={1} variant="lg" className="text-4xl md:text-5xl lg:text-display-xl tracking-tight font-extrabold text-white">
               Selected Work
             </Heading>
             <Paragraph variant="lg">
