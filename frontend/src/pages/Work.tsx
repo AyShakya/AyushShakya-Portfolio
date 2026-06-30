@@ -7,12 +7,12 @@ import {
   getAllExperiences,
   getAllCertificates,
 } from "../utils/markdown";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { Container, Section, Stack, Divider, Spacer } from "../components/common/Container";
-import { Heading, Paragraph, SectionLabel, Tag, Badge } from "../components/common/Typography";
+import { Container, Section, Stack, Spacer } from "../components/common/Container";
+import { Heading, Paragraph, SectionLabel, Tag } from "../components/common/Typography";
 import { FeaturedProjectCard, ProjectCard, ExperienceCard, CertificateCard } from "../components/common/Card";
 import { MasonryGrid, GalleryItem } from "../components/common/Gallery";
 import { Button } from "../components/common/Button";
+import { ProjectDetail } from "../components/project/ProjectDetail";
 
 export const Work: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -109,97 +109,27 @@ export const Work: React.FC = () => {
     },
   };
 
+  // Calculate indices for circular loop exploration
+  const activeIdx = activeProjectId ? projects.findIndex((p) => p.metadata.id === activeProjectId) : -1;
+  const nextProject = activeIdx !== -1 && projects.length > 1
+    ? projects[(activeIdx + 1) % projects.length]
+    : null;
+
   // --- DETAIL VIEW MODE ---
   if (activeProjectId) {
     const project = getProjectById(activeProjectId);
     if (project) {
-      const coverImage = getProjectImage(project.metadata.id);
       return (
-        <Section spacing="sm" className="animate-fade-in-up">
-          <Container size="md">
-            {/* Back indicator link */}
-            <div className="mb-10">
-              <Button onClick={handleCloseProject} variant="text" size="sm" className="group">
-                <span className="inline-block transform group-hover:-translate-x-1.5 transition-transform duration-200 mr-2">
-                  ←
-                </span>
-                [ BACK TO SELECTED WORK ]
-              </Button>
-            </div>
-
-            {/* Side-by-side Case Study Product Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-              
-              {/* Left Column (Sticky Metabar on Large Screen) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6 select-text border border-border-subtle bg-bg-secondary/20 p-6 rounded-lg">
-                <div>
-                  <Badge variant="brand" className="mb-3">
-                    {project.metadata.tag}
-                  </Badge>
-                  <Heading level={1} variant="lg" className="mb-2">
-                    {project.metadata.name}
-                  </Heading>
-                  {project.metadata.metrics && (
-                    <Paragraph variant="sm" className="font-mono text-brand-primary font-semibold text-xs mt-1">
-                      {project.metadata.metrics}
-                    </Paragraph>
-                  )}
-                </div>
-
-                <Divider />
-
-                {/* Tech specifications */}
-                <div>
-                  <SectionLabel className="block mb-3">Specifications</SectionLabel>
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.metadata.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2 py-0.5 rounded bg-bg-primary border border-border-subtle text-[10px] font-mono text-text-secondary"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <Divider />
-
-                {/* Case study direct links */}
-                <div className="flex flex-col gap-3">
-                  {project.metadata.githubUrl && (
-                    <Button href={project.metadata.githubUrl} variant="secondary" size="sm" external>
-                      ⌨ View Repository
-                    </Button>
-                  )}
-                  {project.metadata.liveDemoUrl && (
-                    <Button href={project.metadata.liveDemoUrl} variant="primary" size="sm" external>
-                      ↗ Live Demonstration
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Right Column: Case study content bodies */}
-              <div className="lg:col-span-8 space-y-8 select-text">
-                {/* Cinematic Header Image */}
-                <div className="w-full aspect-video rounded-lg overflow-hidden border border-border-strong bg-bg-secondary">
-                  <img
-                    src={coverImage}
-                    alt={`${project.metadata.name} system cover`}
-                    className="w-full h-full object-cover grayscale brightness-90 contrast-105"
-                  />
-                </div>
-
-                {/* Document Body wrapped inside reading-width limit */}
-                <div className="max-w-reading py-2 select-text prose prose-invert">
-                  <MarkdownRenderer content={project.content} />
-                </div>
-              </div>
-
-            </div>
-          </Container>
-        </Section>
+        <ProjectDetail
+          project={project}
+          nextProject={
+            nextProject
+              ? { id: nextProject.metadata.id, name: nextProject.metadata.name }
+              : null
+          }
+          onBack={handleCloseProject}
+          onSelectProject={handleProjectSelect}
+        />
       );
     }
   }
